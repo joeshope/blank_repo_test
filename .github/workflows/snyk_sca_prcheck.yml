@@ -1,0 +1,50 @@
+name: Run Scan and Comment on PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write # Still needed to write/update the comment
+
+jobs:
+  scan-and-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run your scan
+        id: scan
+        run: |
+          npm install -g snyk
+          snyk test --json-file-output=sca-results.json
+
+      - name: Format scan output for comment
+        id: format
+        run: |
+          # Read the file and format it into a multi-line string for the comment
+          # 'EOF' is a "here-document" marker, it can be any string
+          COMMENT_BODY=$(cat <<-EOF
+          ### 🛡️ Scan Results
+
+          Here is the output from our security scan:
+
+          \`\`\`json
+          $(cat sca-results.json)
+          \`\`\`
+          EOF
+          )
+          # This magic line sets the formatted string as a step output
+          echo "body=$COMMENT_BODY" >> "$GITHUB_OUTPUT"
+
+      - name: Create or Update PR Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          # Use the PR number from the event payload
+          issue-number: ${{ github.event.pull_request.number }}
+          # Use the formatted body from the previous step's output
+          body: ${{ steps.format.outputs.body }}
+          # This ID is used to find and update the comment instead of creating a new one
+          # You can change 'scan-results-comment' to any unique string
+          unique-id-for-update: scan-results-comment
