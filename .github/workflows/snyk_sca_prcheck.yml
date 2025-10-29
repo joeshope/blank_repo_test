@@ -18,6 +18,7 @@ jobs:
         id: scan
         run: |
           npm install -g snyk
+          snyk auth $SNYK_TOKEN
           snyk code test --json-file-output=sast-results.json
 
       - name: Format scan output for comment
