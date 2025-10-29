@@ -24,21 +24,26 @@ jobs:
       - name: Format scan output for comment
         id: format
         run: |
-          # Read the file and format it into a multi-line string for the comment
-          # 'EOF' is a "here-document" marker, it can be any string
-          COMMENT_BODY=$(cat <<-EOF
-          ### 🛡️ Scan Results
-
-          Here is the output from our security scan:
-
-          \`\`\`json
-          $(cat sast-results.json)
-          \`\`\`
-          EOF
-          )
-          # This magic line sets the formatted string as a step output
-          echo "body=$COMMENT_BODY" >> "$GITHUB_OUTPUT"
-
+          # This tells GITHUB_OUTPUT to start capturing a multi-line
+          # string for the 'body' output, ending when it sees 'EOF'
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          
+          # Now, we just echo our content. It will all be captured
+          # into the 'body' output variable.
+          echo "### 🛡️ Scan Results" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "Here is the output from our security scan:" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "\`\`\`json" >> "$GITHUB_OUTPUT"
+          # This safely streams the raw content of your file
+          cat scan-output.json >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "\`\`\`" >> "$GITHUB_OUTPUT"
+          
+          # This is the closing delimiter
+          echo "EOF" >> "$GITHUB_OUTPUT"
+        shell: bash
+        
       - name: Create or Update PR Comment
         uses: peter-evans/create-or-update-comment@v4
         with:
