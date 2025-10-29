@@ -36,7 +36,7 @@ jobs:
           echo "" >> "$GITHUB_OUTPUT"
           echo "\`\`\`json" >> "$GITHUB_OUTPUT"
           # This safely streams the raw content of your file
-          cat scan-output.json >> "$GITHUB_OUTPUT"
+          cat sast-results.json >> "$GITHUB_OUTPUT"
           echo "" >> "$GITHUB_OUTPUT"
           echo "\`\`\`" >> "$GITHUB_OUTPUT"
           
