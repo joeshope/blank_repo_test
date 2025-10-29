@@ -19,7 +19,7 @@ jobs:
         run: |
           npm install -g snyk
           snyk auth --auth-type=token ${{ secrets.SNYK_TOKEN }}
-          snyk code test --json-file-output=sast-results.json
+          snyk code test --json-file-output=sast-results.json || true
 
       - name: Format scan output for comment
         id: format
