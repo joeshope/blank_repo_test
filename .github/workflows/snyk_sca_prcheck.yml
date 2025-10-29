@@ -18,7 +18,7 @@ jobs:
         id: scan
         run: |
           npm install -g snyk
-          snyk test --json-file-output=sca-results.json
+          snyk code test --json-file-output=sast-results.json
 
       - name: Format scan output for comment
         id: format
@@ -31,7 +31,7 @@ jobs:
           Here is the output from our security scan:
 
           \`\`\`json
-          $(cat sca-results.json)
+          $(cat sast-results.json)
           \`\`\`
           EOF
           )
